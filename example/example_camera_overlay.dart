@@ -77,6 +77,7 @@ class _ExampleCameraOverlayState extends State<ExampleCameraOverlay> {
             return CameraOverlay(
                 snapshot.data!.first,
                 CardOverlay.byFormat(format),
+                ResolutionPreset.high,
                 (XFile file) => showDialog(
                       context: context,
                       barrierColor: Colors.black,

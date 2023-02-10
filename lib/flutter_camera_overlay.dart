@@ -10,6 +10,7 @@ class CameraOverlay extends StatefulWidget {
   const CameraOverlay(
     this.camera,
     this.model,
+    this.resolution,
     this.onCapture, {
     Key? key,
     this.flash = false,
@@ -28,6 +29,7 @@ class CameraOverlay extends StatefulWidget {
   final String? info;
   final Widget? loadingWidget;
   final EdgeInsets? infoMargin;
+  final ResolutionPreset resolution;
 
   @override
   _FlutterCameraOverlayState createState() => _FlutterCameraOverlayState();
@@ -35,13 +37,15 @@ class CameraOverlay extends StatefulWidget {
 
 class _FlutterCameraOverlayState extends State<CameraOverlay> {
   _FlutterCameraOverlayState();
+  bool showFlash = false;
 
   late CameraController controller;
 
   @override
   void initState() {
     super.initState();
-    controller = CameraController(widget.camera, ResolutionPreset.max);
+    showFlash = widget.flash;
+    controller = CameraController(widget.camera, widget.resolution);
     controller.initialize().then((_) {
       if (!mounted) {
         return;
@@ -73,8 +77,7 @@ class _FlutterCameraOverlayState extends State<CameraOverlay> {
       return loadingWidget;
     }
 
-    controller
-        .setFlashMode(widget.flash == true ? FlashMode.auto : FlashMode.off);
+    controller.setFlashMode(showFlash == true ? FlashMode.auto : FlashMode.off);
     return Stack(
       alignment: Alignment.bottomCenter,
       fit: StackFit.expand,
