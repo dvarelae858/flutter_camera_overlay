@@ -13,6 +13,7 @@ class CameraOverlay extends StatefulWidget {
     this.resolution,
     this.onCapture, {
     Key? key,
+    this.onVideoCapture, // = null,
     this.flash = false,
     this.enableCaptureButton = true,
     this.label,
@@ -25,6 +26,7 @@ class CameraOverlay extends StatefulWidget {
   final bool flash;
   final bool enableCaptureButton;
   final XFileCallback onCapture;
+  final XFileCallback? onVideoCapture;
   final String? label;
   final String? info;
   final Widget? loadingWidget;
@@ -38,7 +40,9 @@ class CameraOverlay extends StatefulWidget {
 class _FlutterCameraOverlayState extends State<CameraOverlay> {
   _FlutterCameraOverlayState();
   bool showFlash = false;
-
+  int numberOfCameras = 0;
+  late List<CameraDescription> cameras;
+  bool isTakingVideo = false;
   late CameraController controller;
 
   @override
@@ -77,7 +81,7 @@ class _FlutterCameraOverlayState extends State<CameraOverlay> {
       return loadingWidget;
     }
 
-    controller.setFlashMode(showFlash == true ? FlashMode.auto : FlashMode.off);
+    //controller.setFlashMode(showFlash == true ? FlashMode.auto : FlashMode.off);
     return Stack(
       alignment: Alignment.bottomCenter,
       fit: StackFit.expand,
@@ -114,30 +118,92 @@ class _FlutterCameraOverlayState extends State<CameraOverlay> {
         if (widget.enableCaptureButton)
           Align(
             alignment: Alignment.bottomCenter,
-            child: Material(
-                color: Colors.transparent,
-                child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.black12,
-                      shape: BoxShape.circle,
-                    ),
-                    margin: const EdgeInsets.all(25),
-                    child: IconButton(
-                      enableFeedback: true,
-                      color: Colors.white,
-                      onPressed: () async {
-                        for (int i = 10; i > 0; i--) {
-                          await HapticFeedback.vibrate();
-                        }
+            child: Row(
+              children: [
+                Material(
+                    color: Colors.transparent,
+                    child: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.black12,
+                          shape: BoxShape.circle,
+                        ),
+                        margin: const EdgeInsets.all(25),
+                        child: IconButton(
+                          enableFeedback: true,
+                          color: Colors.white,
+                          onPressed: () async {
+                            for (int i = 10; i > 0; i--) {
+                              await HapticFeedback.vibrate();
+                            }
 
-                        XFile file = await controller.takePicture();
-                        widget.onCapture(file);
-                      },
-                      icon: const Icon(
-                        Icons.camera,
-                      ),
-                      iconSize: 72,
-                    ))),
+                            XFile file = await controller.takePicture();
+                            widget.onCapture(file);
+                          },
+                          icon: const Icon(
+                            Icons.camera,
+                          ),
+                          iconSize: 72,
+                        ))),
+                if (widget.onVideoCapture != null)
+                  Material(
+                      color: Colors.transparent,
+                      child: Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.black12,
+                            shape: BoxShape.circle,
+                          ),
+                          margin: const EdgeInsets.all(25),
+                          child: IconButton(
+                            enableFeedback: true,
+                            color: Colors.white,
+                            onPressed: () async {
+                              if (isTakingVideo) {
+                                final videoFile =
+                                    await controller.stopVideoRecording();
+                                isTakingVideo = false;
+                                widget.onVideoCapture!(videoFile);
+                              } else {
+                                for (int i = 10; i > 0; i--) {
+                                  await HapticFeedback.vibrate();
+                                }
+                                await controller.startVideoRecording();
+                              }
+                            },
+                            icon: const Icon(
+                              Icons.video_camera_back,
+                            ),
+                            iconSize: 72,
+                          ))),
+                Material(
+                    color: Colors.transparent,
+                    child: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.black12,
+                          shape: BoxShape.circle,
+                        ),
+                        margin: const EdgeInsets.all(25),
+                        child: IconButton(
+                          enableFeedback: true,
+                          color: Colors.white,
+                          onPressed: () async {
+                            for (int i = 10; i > 0; i--) {
+                              await HapticFeedback.vibrate();
+                            }
+                            final flashMode =
+                                showFlash ? FlashMode.off : FlashMode.always;
+                            await controller.setFlashMode(flashMode);
+                            showFlash = !showFlash;
+                            if (mounted) {
+                              setState(() {});
+                            }
+                          },
+                          icon: const Icon(
+                            Icons.flash_auto,
+                          ),
+                          iconSize: 72,
+                        ))),
+              ],
+            ),
           ),
       ],
     );
