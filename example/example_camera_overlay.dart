@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:edge_detection/edge_detection.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_camera_overlay/flutter_camera_overlay.dart';
@@ -49,6 +50,11 @@ class _ExampleCameraOverlayState extends State<ExampleCameraOverlay> {
                 format = OverlayFormat.simID000;
               });
               break;
+            case (3):
+              setState(() {
+                format = OverlayFormat.CRINationalID;
+              });
+              break;
           }
         },
         items: const [
@@ -59,6 +65,7 @@ class _ExampleCameraOverlayState extends State<ExampleCameraOverlay> {
           BottomNavigationBarItem(
               icon: Icon(Icons.contact_mail), label: 'US ID'),
           BottomNavigationBarItem(icon: Icon(Icons.sim_card), label: 'Sim'),
+          BottomNavigationBarItem(icon: Icon(Icons.contact_mail_outlined), label: 'CRI ID'),
         ],
       ),
       backgroundColor: Colors.white,
@@ -91,7 +98,21 @@ class _ExampleCameraOverlayState extends State<ExampleCameraOverlay> {
                                 textAlign: TextAlign.center),
                             actions: [
                               OutlinedButton(
-                                  onPressed: () => Navigator.of(context).pop(),
+                                  onPressed: () async {
+                                    Navigator.of(context).pop();
+                                    try {
+                                      //Make sure to await the call to detectEdge.
+                                      bool success = await EdgeDetection.detectEdge(file.path,
+                                        canUseGallery: false,
+                                        androidScanTitle: 'Scanning', // use custom localizations for android
+                                        androidCropTitle: 'Crop',
+                                        androidCropBlackWhiteTitle: 'Black White',
+                                        androidCropReset: 'Reset',
+                                      );
+                                    } catch (e) {
+                                      print("EdgeDetection Exception: ${e}");
+                                    }
+                                  },
                                   child: const Icon(Icons.close))
                             ],
                             content: SizedBox(

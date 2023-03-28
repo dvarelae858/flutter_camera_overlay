@@ -19,6 +19,7 @@ dependencies:
   camera: ^0.10.0+4
   camera_web: ^0.3.1+1
   image: ^4.0.13
+  edge_detection: ^1.1.1
 
 dev_dependencies:
   flutter_test:
