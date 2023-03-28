@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:edge_detection/edge_detection.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_camera_overlay/flutter_camera_overlay.dart';
@@ -102,13 +101,6 @@ class _ExampleCameraOverlayState extends State<ExampleCameraOverlay> {
                                     Navigator.of(context).pop();
                                     try {
                                       //Make sure to await the call to detectEdge.
-                                      bool success = await EdgeDetection.detectEdge(file.path,
-                                        canUseGallery: false,
-                                        androidScanTitle: 'Scanning', // use custom localizations for android
-                                        androidCropTitle: 'Crop',
-                                        androidCropBlackWhiteTitle: 'Black White',
-                                        androidCropReset: 'Reset',
-                                      );
                                     } catch (e) {
                                       print("EdgeDetection Exception: ${e}");
                                     }
